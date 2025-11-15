@@ -16,6 +16,9 @@ Sähköposti: anna.virtanen@example.com
 
 """
 
+from __future__ import annotations
+from datetime import datetime
+
 def main():
     # Määritellään tiedoston nimi suoraan koodissa
     varaukset = "varaukset.txt"
@@ -25,13 +28,29 @@ def main():
         varaus = f.read().strip()
 
     # Tulostetaan varaus konsoliin
-    print(varaus)
+    #print(varaus)
 
     # Kokeile näitä
     #print(varaus.split('|'))
-    #varausId = varaus.split('|')[0]
+
+
+    
+    varausId = varaus.split('|')[6]
     #print(varausId)
     #print(type(varausId))
+
+    reservation = {
+        "reservation_number": varausId[0],
+        "user_name": varausId[1],
+        "resource": varausId[2],
+        "start": varausId[3],
+        "end": varausId[4],
+        "confirmed": True,
+        "participants": 4   
+    }
+
+    print(f"Varausnumero: {reservation_number['resource']} klo {reservation['start'].strftime('%H:%M')}–{reservation['end'].strftime('%H:%M')}")
+
     """
     Edellisen olisi pitänyt tulostaa numeron 123, joka
     on oletuksena tekstiä.
