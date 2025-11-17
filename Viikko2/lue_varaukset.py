@@ -28,29 +28,52 @@ def main():
         varaus = f.read().strip()
 
     # Tulostetaan varaus konsoliin
-    #print(varaus)
+    #print(varaus)  # tulostaa koko rivin tiedostosta
 
     # Kokeile näitä
-    #print(varaus.split('|'))
-
+    #print(varaus.split('|')) # Jakaa merkkijonon osiin erotinmerkin '|' kohdalta ja tulostaa listana
 
     
-    varausId = varaus.split('|')[6]
-    #print(varausId)
-    #print(type(varausId))
-
+    varausId = varaus.split('|') # Jaetaan merkkijono osiin erotinmerkin '|' kohdalta
+    # Muutetaan tarvittavat kentät oikean tyyppisiksi
+    
     reservation = {
-        "reservation_number": varausId[0],
+        "reservation_number": int(varausId[0]),
         "user_name": varausId[1],
-        "resource": varausId[2],
-        "start": varausId[3],
-        "end": varausId[4],
-        "confirmed": True,
-        "participants": 4   
+        "reservation_date": varausId[2],
+        "start_time": varausId[3],
+        "duration": float(varausId[4]),
+        "hourly_rate": float(varausId[5]),
+        "total_price": float(varausId[4]) * float(varausId[5]),
+        "paid": bool(varausId[6]),
+        "location": varausId[7],
+        "phone": varausId[8],
+        "email": varausId[9]      
     }
 
-    print(f"Varausnumero: {reservation_number['resource']} klo {reservation['start'].strftime('%H:%M')}–{reservation['end'].strftime('%H:%M')}")
+    paiva = datetime.strptime(reservation['reservation_date'], "%Y-%m-%d").date()
+    suomalainenPaiva = paiva.strftime("%d.%m.%Y")
+    aika = datetime.strptime(reservation['start_time'], "%H:%M").time()
+    suomalainenAika = aika.strftime("%H.%M")
+    #print(f"Muunnettu päivämäärä: {suomalainenPaiva}")
+    print(f"Muunnettu aika: {suomalainenAika}") 
+          
 
+    print()
+    print(f"Varausnumero: {reservation['reservation_number']}")
+    print(f"Varaaja: {reservation['user_name']}")
+    print(f"Päivämäärä: {suomalainenPaiva}")
+    print(f"Aloitusaika: {suomalainenAika}")
+    print(f"Tuntimäärä: {reservation['duration']}")
+    print(f"Tuntihinta: {reservation['hourly_rate']} €")
+    print(f"Kokonaishinta: {reservation['total_price']} €")
+    print(f"Maksettu: {reservation['paid']}")
+    print(f"Kohde: {reservation['location']}")
+    print(f"Puhelin: {reservation['phone']}")
+    print(f"Sähköposti: {reservation['email']}")
+ 
+
+    
     """
     Edellisen olisi pitänyt tulostaa numeron 123, joka
     on oletuksena tekstiä.
