@@ -27,6 +27,7 @@ def main():
     with open(varaukset, "r", encoding="utf-8") as f:
         varaus = f.read().strip()
 
+    
     # Tulostetaan varaus konsoliin
     #print(varaus)  # tulostaa koko rivin tiedostosta
 
@@ -35,7 +36,7 @@ def main():
 
     
     varausId = varaus.split('|') # Jaetaan merkkijono osiin erotinmerkin '|' kohdalta
-    # Muutetaan tarvittavat kentät oikean tyyppisiksi
+    
     
     reservation = {
         "reservation_number": int(varausId[0]),
@@ -55,8 +56,8 @@ def main():
     suomalainenPaiva = paiva.strftime("%d.%m.%Y")
     aika = datetime.strptime(reservation['start_time'], "%H:%M").time()
     suomalainenAika = aika.strftime("%H.%M")
-    #print(f"Muunnettu päivämäärä: {suomalainenPaiva}")
-    print(f"Muunnettu aika: {suomalainenAika}") 
+    #print(f"Muunnettu päivämäärä: {suomalainenPaiva}") #testitulostus
+    #print(f"Muunnettu aika: {suomalainenAika}") #testitulostus
           
 
     print()
@@ -73,14 +74,6 @@ def main():
     print(f"Sähköposti: {reservation['email']}")
  
 
-    
-    """
-    Edellisen olisi pitänyt tulostaa numeron 123, joka
-    on oletuksena tekstiä.
-
-    Voit kokeilla myös vaihtaa kohdan [0] esim. seuraavaksi [1]
-    ja testata mikä muuttuu
-    """
 
 if __name__ == "__main__":
     main()
