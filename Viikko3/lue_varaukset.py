@@ -36,7 +36,7 @@ def hae_aloitusaika(varaus):
 
 def hae_tuntimaara(varaus):
     tuntimaara = float(varaus[4])
-    print(f"Tuntimäärä: {tuntimaara}")
+    print(f"Tuntimäärä: {tuntimaara:.0f}")
 
 def hae_tuntihinta(varaus):
     tuntihinta = float(varaus[5])
