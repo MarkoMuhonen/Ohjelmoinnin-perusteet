@@ -99,14 +99,19 @@ def main():
 
     # Avataan tiedosto, luetaan ja splitataan sisalto
     with open(varaukset, "r", encoding="utf-8") as f:
-        varaus = f.read().strip()
-        varaus = varaus.split('|')
+        for rivi in f:
+            varaus = rivi.strip().split('|')
+            tulosta_varaus(varaus)
+            print()
+           
+            #varaus = f.readline().strip()
+            #varaus = varaus.split('|')
 
     # Toteuta loput funktio hae_varaaja(varaus) mukaisesti
     # Luotavat funktiota tekevat tietotyyppien muunnoksen
     # ja tulostavat esimerkkitulosteen mukaisesti
 
-    tulosta_varaus(varaus)
+    #tulosta_varaus(varaus)
     
     # testiä varten
     #kokonaishinta = laske_kokonaishinta(varaus)
