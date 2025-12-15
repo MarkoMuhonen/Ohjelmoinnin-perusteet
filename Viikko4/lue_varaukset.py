@@ -173,7 +173,17 @@ def yhteenveto_varaukset_pvm(varaukset: list):
     print()
     return
 
-
+def hae_varaukset(varaustiedosto: str) -> list:
+    # HUOM! Tälle funktioille ei tarvitse tehdä mitään!
+    # Jos muutat, kommentoi miksi muutit
+    varaukset = []
+    varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
+    with open(varaustiedosto, "r", encoding="utf-8") as f:
+        for varaus in f:
+            varaus = varaus.strip()
+            varaustiedot = varaus.split('|')
+            varaukset.append(muunna_varaustiedot(varaustiedot))
+    return varaukset
 
 def main():
     # HUOM! seuraaville riveille ei tarvitse tehdä mitään osassa A!
