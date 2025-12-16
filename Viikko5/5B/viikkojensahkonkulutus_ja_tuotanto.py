@@ -30,17 +30,13 @@ luettava ja looginen
 selkeästi jäsennelty (otsikot, taulukkomaiset rivit, väliotsikot viikoille)
 
 
-Ohjelma käynnistetään komentoriviltä, jolloin tiedostonimet annetaan argumentteina, esim.:
-python viikkojensahkonkulutus_ja_tuotanto.py viikko41.csv viikko42.csv viikko43.csv
-
-Tuloste on kovakoodattu tiedostoon yhteenveto.txt samassa hakemistossa, jossa ohjelma on.
-
-
 
 """
 
 from datetime import datetime, date
 import sys
+
+
 
 
 
@@ -96,29 +92,6 @@ def paivantiedot(paiva: str, lukemat: list) -> tuple[list, str]:
     lasketutTiedot.append(tuotanto3vaihe/1000)
     return lasketutTiedot, viikonpaiva
    
-def kaikkitiedot(lukemat: list) -> list:
-    koontikulutus1vaihe = 0
-    koontikulutus2vaihe = 0
-    koontikulutus3vaihe = 0
-    koontituotanto1vaihe = 0
-    koontituotanto2vaihe = 0
-    koontituotanto3vaihe = 0
-    for lukema in lukemat:
-        koontikulutus1vaihe += lukema[1]
-        koontikulutus2vaihe += lukema[2]
-        koontikulutus3vaihe += lukema[3]
-        koontituotanto1vaihe += lukema[4]
-        koontituotanto2vaihe += lukema[5]
-        koontituotanto3vaihe += lukema[6]
-    koontiTiedot = [
-        koontikulutus1vaihe/1000,
-        koontikulutus2vaihe/1000,
-        koontikulutus3vaihe/1000,
-        koontituotanto1vaihe/1000,
-        koontituotanto2vaihe/1000,
-        koontituotanto3vaihe/1000
-    ]
-    return koontiTiedot
 
 def lue_data(datatiedosto: str) -> list:
     rivit = []
@@ -132,7 +105,8 @@ def lue_data(datatiedosto: str) -> list:
 
 def muunna_rivitiedot(rivit: list) -> list:
     # muunnetaan rivitiedot oikeisiin tietotyyppeihin
-       
+    # rivillä on 7 saraketta -> Lista -> Alkiot 0-6
+    
     return [
         datetime.strptime(rivit[0], "%Y-%m-%dT%H:%M:%S"),
         float(rivit[1]),
@@ -144,10 +118,10 @@ def muunna_rivitiedot(rivit: list) -> list:
     ]
 
 
-def tulosta_yksittaiset_vaihelukemat(paivamaara:str, paivanlukemat: list, viikonpaiva: str):
+def tulosta_yksittaiset_vaihelukemat(paiva:str, paivanlukemat: list, viikonpaiva: str):
     #for lukema in paivanlukemat:
     print(f"{viikonpaiva.capitalize():11}", end= "   ")
-    print(f"{paivamaara:<12}",  end= "  ")
+    print(f"{paiva:<12}",  end= "  ")
     print(f"{paivanlukemat[0]:>6.2f}".replace('.', ','), end= " ")
     print(f"{paivanlukemat[1]:>6.2f}".replace('.', ','), end= " ") 
     print(f"{paivanlukemat[2]:>6.2f}".replace('.', ','), end= " ")
@@ -157,66 +131,26 @@ def tulosta_yksittaiset_vaihelukemat(paivamaara:str, paivanlukemat: list, viikon
     print()
     return
 
-def tulosta_raportti(tiedosto: str):
-    rivit = lue_data(tiedosto)
-       
-    viikko = selvita_viikko([rivi[0].date() for rivi in rivit])
-   
-    print("Viikon " + str(viikko) + " sähkönkulutus ja -tuotanto (kWh, vaiheittain)", end="\n\n")
-    print("Päivä         Pvm           Kulutus [kWh]                 Tuotanto [kWh]")
-    print("              (pv.kk.vvvv)  v1      v2      v3            v1     v2     v3")
-    print("-" * 80)
-   
-    paivamaarat = sorted({rivi[0].date() for rivi in rivit})
-    
-    for paiva in paivamaarat:
-        paiva_str = paiva.strftime("%d.%m.%Y")
-        paivanlukemat, viikonpaiva = paivantiedot(paiva_str, rivit)
-        koontiLukemat = kaikkitiedot(rivit)
-        tulosta_yksittaiset_vaihelukemat(paiva_str, paivanlukemat, viikonpaiva)
-
-    print("-" * 80)
-    print()
-    return
-
-def tulosta_yhteenveto(koontiLukemat: list):
-    print("\n\nKoonti kaikilta annetuilta viikoilta - sähkönkulutus ja -tuotanto (kWh, vaiheittain)", end="\n\n")
-    print("       Kulutus [kWh]                   Tuotanto [kWh]")
-    print("  v1        v2        v3            v1        v2        v3")
-    print("-" * 80)
-    print(f"{koontiLukemat[0]:>7.2f}".replace('.', ','), end=" ")
-    print(f"{koontiLukemat[1]:>8.2f}".replace('.', ','), end=" ")
-    print(f"{koontiLukemat[2]:>8.2f}".replace('.', ','), end=" ")
-    print(f"{koontiLukemat[3]:>14.2f}".replace('.', ','), end=" ")
-    print(f"{koontiLukemat[4]:>9.2f}".replace('.', ','), end=" ")
-    print(f"{koontiLukemat[5]:>9.2f}".replace('.', ','))
-    print("-" * 80)
-    return
-
-
 def main():
     if len(sys.argv) < 2:
         print("Anna vähintään yksi tiedostonimi komentorivillä!")
         return
-
-    kaikki_rivit = []
     for tiedosto in sys.argv[1:]:
-        tulosta_raportti(tiedosto)
         rivit = lue_data(tiedosto)
-        kaikki_rivit.extend(rivit)
-
-    koontiLukemat = kaikkitiedot(kaikki_rivit)
-    tulosta_yhteenveto(koontiLukemat)
-    print()
-
-    with open("yhteenveto.txt", "w", encoding="utf-8") as f:
-        sys.stdout = f
-        for tiedosto in sys.argv[1:]:
-            tulosta_raportti(tiedosto)
-        tulosta_yhteenveto(koontiLukemat)
-        print()
-        sys.stdout = sys.__stdout__
-                   
+        print(tiedosto)
         
+        # testikodia datan luvun tarkistamiseksi
+        # tulosta_data(rivit)
+        viikko = selvita_viikko(rivit[0])
+        print("Viikon " + str(viikko) + "  sähkönkulutus ja -tuotanto (kWh, vaiheittain)", end="\n\n")
+        print("Päivä         Pvm           Kulutus [kWh]                 Tuotanto [kWh]")
+        print("              (pv.kk.vvvv)  v1      v2      v3            v1     v2     v3")
+        print("-" * 80)
+        for paiva in ["13.10.2025", "14.10.2025", "15.10.2025", "16.10.2025", "17.10.2025", "18.10.2025", "19.10.2025"]:
+            paivanlukemat, viikonpaiva = paivantiedot(paiva, rivit)
+            tulosta_yksittaiset_vaihelukemat(paiva, paivanlukemat, viikonpaiva)
+        print("-" * 80)
+        #print("Viikon " + str(viikko) + "  sähkönkulutus ja -tuotanto (kWh, vaiheittain)", end="\n\n")
+
 if __name__ == "__main__":
     main()
