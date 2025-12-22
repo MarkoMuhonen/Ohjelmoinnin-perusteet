@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Ville Heikkiniemi
+# Copyright (c) 2025 Marko Muhonen
 #
 # This code is licensed under the MIT License.
 # You are free to use, modify, and distribute this code,
@@ -92,48 +92,52 @@ def header(title: str) -> str:
     return f"\n--- {title.capitalize()} ---"
 
 # Toiminnot (actions). Jokainen voi palauttaa seuraavan valikon nimen tai None.
-def act_set_user() -> Optional[str]:
-    name = input("Anna käyttäjän nimi: ").strip()
-    if not name:
-        print("Nimi ei voi olla tyhjä.")
-        return None
-    state.user = name
-    print(f"Käyttäjä asetettu: {state.user}")
-    return None  # Pysy samassa valikossa
 
-def act_add_item() -> Optional[str]:
-    item = input("Lisättävä kohde: ").strip()
-    if not item:
-        print("Kohde ei voi olla tyhjä.")
-        return None
-    state.items.append(item)
-    print(f"Lisätty: {item}")
+def act_timerange_summary() -> Optional[str]:
+    """Raportti 1: Päiväkohtainen yhteenveto aikaväliltä
+    Kysy käyttäjältä:
+
+    Alkupäivä: Anna alkupäivä (pv.kk.vvvv):
+    Loppupäivä: Anna loppupäivä (pv.kk.vvvv):
+    Raporttiin tulostetaan aikaväliltä:
+
+    Alku- ja loppupäivä (pv.kk.vvvv-pv.kk.vvvv)
+    Aikavälin kokonaiskulutus (kWh, 2 desimaalia, pilkku desimaalina)
+    Aikavälin kokonaistuotanto (kWh, 2 desimaalia, pilkku desimaalina)
+    Aikavälin keskilämpötila (esim. kaikkien tuntien lämpötilojen keskiarvo)
+    """
+    start_date_str = input("Anna aloituspäivämäärä (pv.kk.vvvv): ").strip()
+    end_date_str = input("Anna lopetuspäivämäärä (pv.kk.vvvv): ").strip()
+    try:
+        start_date = datetime.strptime(start_date_str, "%d.%m.%Y").date()
+        end_date = datetime.strptime(end_date_str, "%d.%m.%Y").date()
+        if start_date > end_date:
+            print("Aloituspäivämäärä ei voi olla lopetuspäivämäärää myöhempi.")
+            return None
+        print(f"Raportti aikaväliltä: {start_date} - {end_date}")
+    except ValueError:
+        print("Virheellinen päivämäärämuoto. Käytä muotoa pv.kk.vvvv.")
     return None
 
-def act_list_items() -> Optional[str]:
-    if not state.items:
-        print("Ei kohteita.")
-    else:
-        print("Kohteet:")
-        for i, it in enumerate(state.items, start=1):
-            print(f"  {i}. {it}")
+
+
+def act_monthly_summary() -> Optional[str]:
+    print("Näytetään kuukausiyhteenveto (toiminto ei ole vielä toteutettu).")
+    return None
+def act_yearly_summary() -> Optional[str]:
+    print("Näytetään aikavälin päiväyhteenveto (toiminto ei ole vielä toteutettu).")
     return None
 
-def act_clear_items() -> Optional[str]:
-    confirm = input("Tyhjennetään kaikki kohteet? (k/e): ").strip().lower()
-    if confirm == "k":
-        state.items.clear()
-        print("Kohteet tyhjennetty.")
-    else:
-        print("Peruutettu.")
+def act_write_raport_to_file() -> Optional[str]:
+    print("Kirjoitetaan raportti (toiminto ei ole vielä toteutettu).")
     return None
 
-def act_go_settings() -> str:
+def act_go_print_to_file() -> str:
     # Siirtyminen toiseen valikkoon palauttamalla sen nimi
-    return "asetukset"
+    return "tulosta_tiedostoon"
 
-def act_go_file() -> str:
-    return "tiedostoon"
+def act_go_filemenu() -> str:
+    return "tulosta_tiedostoon"
 
 def act_go_main() -> str:
     return "päävalikko"
@@ -143,7 +147,6 @@ def act_quit() -> str:
     # Palautetaan tuntematon valikkonimi, jolloin run_menu lopettaa siististi, tai sitten ei
     quit()
     return "__exit__"
-
 
 def main():    run_menu(
         start_menu="päävalikko",
@@ -156,21 +159,18 @@ def main():    run_menu(
 # Valikkorakenne: yksi aliohjelma run_menu käsittelee kaikki
 menus: Menus = {
     "päävalikko": {
-        "1": ("Aikavälin päiväyhteenveto", act_set_user),
-        "2": ("Kuukausiyhteenveto", act_add_item),
-        "3": ("Vuosiyhteenveto", act_list_items),
-        "4": ("joku muu", act_clear_items),
-        "s": ("Siirry asetuksiin", act_go_settings),
+        "1": ("Päiväkohtainen yhteenveto aikaväliltä", act_timerange_summary),
+        "2": ("Kuukausikohtainen yhteenveto yhdelle kuukaudelle", act_monthly_summary),
+        "3": ("Vuoden 2025 kokonaisyhteenveto", act_yearly_summary),
+        "w": ("Tulosta tiedostoon", act_go_filemenu),
         "q": ("Lopeta", act_quit),
     },
-    "asetukset": {
-        "1": ("Näytä nykyinen käyttäjä", lambda: (print(f"Nykyinen käyttäjä: {state.user or '-'}") or None)),
-        "2": ("Vaihda käyttäjä", act_set_user),
+    "tulosta_tiedostoon": {
+        "1": ("Kirjoita raportti tiedostoon raportti.txt", act_write_raport_to_file),
         "m": ("Takaisin päävalikkoon", act_go_main),
         "q": ("Lopeta", act_quit),
-    }
-    # "__exit__" ei ole varsinaisesti menu, mutta exit-polku
-}
+        }
+    }   
 
 if __name__ == "__main__":
     main()
