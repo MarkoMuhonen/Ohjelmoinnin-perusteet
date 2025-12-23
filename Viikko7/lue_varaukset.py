@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Ville Heikkiniemi
+# Copyright (c) 2025 Marko Muhonen
 #
 # This code is licensed under the MIT License.
 # You are free to use, modify, and distribute this code,
@@ -7,6 +7,8 @@
 # See LICENSE file in the project root for full license information.
 
 from datetime import datetime
+
+
 
 def muunna_varaustiedot(varaus: list) -> list:
     muutettu_varaus = []
