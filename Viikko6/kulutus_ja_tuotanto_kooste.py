@@ -7,7 +7,11 @@
 # See LICENSE file in the project root for full license information.
 
 from datetime import datetime, date, timedelta  
+import sys
 from typing import Callable, Dict, List, Optional, Tuple
+
+
+
 
 # Tyypit selkeyden ja testattavuuden vuoksi
 Action = Callable[[], Optional[str]]  # Palauttaa seuraavan valikon nimen (tai None pysyäkseen samassa)
@@ -91,6 +95,41 @@ def header(title: str) -> str:
     # Esimerkki otsikon muotoilusta
     return f"\n--- {title.capitalize()} ---"
 
+def muunna_rivitiedot(rivit: list) -> list:
+    """
+    Muuntaa yhden tiedostorivin tiedot oikeisiin tietotyyppeihin (datetime, float).
+
+    :param rivit: lista merkkijonoja (yksi tiedostorivi pilkottuna)
+    :return: lista, jossa tiedot oikeissa tietotyypeissä
+    """
+    return [
+        datetime.fromisoformat(rivit[0]),
+        float(rivit[1].replace(',', '.')),
+        float(rivit[2].replace(',', '.')),
+        float(rivit[3].replace(',', '.'))
+    ]
+
+
+
+def lue_data(datatiedosto: str) -> list:
+    """
+    Lukee annetun CSV-tiedoston ja palauttaa rivit listana, jossa jokainen rivi on muunnettu oikeisiin tietotyyppeihin.
+
+    :param datatiedosto: tiedostonimi (str)
+    :return: lista riveistä, joissa jokainen rivi on lista oikeissa tietotyypeissä
+    """
+    rivit = []
+    with open(datatiedosto, "r", encoding="utf-8") as f:
+        otsikkorivi = f.readline() # Ohitetaan otsikkorivi
+        for rivi in f:
+            rivi = rivi.strip()
+            rivitiedot = rivi.split(';')
+            # debugging
+            #print(rivitiedot)   
+            rivit.append(muunna_rivitiedot(rivitiedot))
+    return list(rivit)        
+
+
 # Toiminnot (actions). Jokainen voi palauttaa seuraavan valikon nimen tai None.
 
 def act_timerange_summary() -> Optional[str]:
@@ -114,11 +153,40 @@ def act_timerange_summary() -> Optional[str]:
         if start_date > end_date:
             print("Aloituspäivämäärä ei voi olla lopetuspäivämäärää myöhempi.")
             return None
-        print(f"Raportti aikaväliltä: {start_date} - {end_date}")
+        print()
+        print("-" * 80)
+        print(f"Raportti aikaväliltä: {start_date.day}.{start_date.month}.{start_date.year} - {end_date.day}.{end_date.month}.{end_date.year}")
+        print("-" * 80)
+        print(f"Aikavälin kokonaiskulutus: {calculate_total_for_timerange(start_date, end_date, rivit, 'consumption'):.2f} kWh")
+        print(f"Aikavälin kokonaistuotanto: {calculate_total_for_timerange(start_date, end_date, rivit, 'production'):.2f} kWh")
+        print("Aikavälin keskilämpötila: ... °C")
     except ValueError:
         print("Virheellinen päivämäärämuoto. Käytä muotoa pv.kk.vvvv.")
     return None
 
+def calculate_total_for_timerange(
+        start_date: date,
+        end_date: date,
+        rivit: list,
+        target: str) -> float:
+    """
+    Laske ja palauta aikavälin kokonaiskulutus tai konaistuotanto 
+    (target = 'consumption' tai 'production')  
+
+    """
+    match target:
+        case 'consumption':
+            cell = 1  # kulutus on sarakkeessa 1
+        case 'production':
+            cell = 2
+        case _:
+            raise ValueError("Tuntematon target-arvo.")
+    total = 0.0
+    for rivi in rivi:
+        if start_date <=rivi[0].date() <= end_date: 
+            total += rivi[cell]
+
+    return float(total) 
 
 
 def act_monthly_summary() -> Optional[str]:
@@ -145,16 +213,8 @@ def act_go_main() -> str:
 def act_quit() -> str:
     print("Lopetetaan. Kiitos!")
     # Palautetaan tuntematon valikkonimi, jolloin run_menu lopettaa siististi, tai sitten ei
-    quit()
     return "__exit__"
 
-def main():    run_menu(
-        start_menu="päävalikko",
-        menus=menus,
-        input_fn=input,
-        print_fn=print,
-        header_fn=header,
-    )
 
 # Valikkorakenne: yksi aliohjelma run_menu käsittelee kaikki
 menus: Menus = {
@@ -171,6 +231,29 @@ menus: Menus = {
         "q": ("Lopeta", act_quit),
         }
     }   
+
+def main():    
+    
+    if len(sys.argv) < 2:
+        print("Anna vähintään yksi tiedostonimi komentorivillä!")
+        return
+
+    #kaikki_rivit = []
+    for tiedosto in sys.argv[1:]:
+        rivit = lue_data(tiedosto)
+        #kaikki_rivit.extend(rivit)
+         
+
+    run_menu(
+        start_menu="päävalikko",
+        menus=menus,
+        input_fn=input,
+        print_fn=print,
+        header_fn=header,
+    )
+
+
+
 
 if __name__ == "__main__":
     main()
