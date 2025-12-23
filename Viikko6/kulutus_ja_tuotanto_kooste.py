@@ -109,7 +109,7 @@ def muunna_rivitiedot(rivit: list) -> dict:
         'dateiso': datetime.fromisoformat(rivit[0]),
         'consumption': float(rivit[1].replace(',', '.')),
         'production': float(rivit[2].replace(',', '.')),
-        'temperature': float(rivit[3].replace(',', '.'))
+        'temperature': float(rivit[3].replace(',', '.'))       
         }
 
 
@@ -165,9 +165,9 @@ def act_timerange_summary() -> Optional[str]:
         print("-" * 80)
         print(f"Raportti aikaväliltä: {start_date.day}.{start_date.month}.{start_date.year} - {end_date.day}.{end_date.month}.{end_date.year}")
         print("-" * 80)
-        print(f"Aikavälin kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Aikavälin kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Aikavälin keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
+        print(f"Aikavälin kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Aikavälin kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Aikavälin keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
         print("-" * 80)
     except ValueError:
         print("Virheellinen päivämäärämuoto. Käytä muotoa pv.kk.vvvv.")
@@ -262,9 +262,9 @@ def act_monthly_summary() -> Optional[str]:
         print("-" * 80)
         print(f"Raportti : {month_in_text[month_nr -1] } {year}")
         print("-" * 80)
-        print(f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
+        print(f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
         print("-" * 80)
     except ValueError:
         print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
@@ -292,9 +292,9 @@ def act_yearly_summary() -> Optional[str]:
         print("-" * 80)
         print(f"Raportti vuodelta {year}")
         print("-" * 80)
-        print(f"Koko vuoden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Koko vuoden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
-        print(f"Koko vuoden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
+        print(f"Koko vuoden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Koko vuoden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
+        print(f"Koko vuoden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
         print("-" * 80)
     except ValueError:
         print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
