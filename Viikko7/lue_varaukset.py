@@ -8,33 +8,58 @@
 
 from datetime import datetime
 
+class Varaus:
+    def __init__(self, varaus_id, nimi, sahkoposti, puhelin,
+                 paiva, kellonaika, kesto, hinta,
+                 vahvistettu, kohde, luotu):
+        self.varaus_id = varaus_id
+        self.nimi = nimi
+        self.sahkoposti = sahkoposti
+        self.puhelin = puhelin
+        self.paiva = paiva
+        self.kellonaika = kellonaika
+        self.kesto = kesto
+        self.hinta = hinta
+        self.vahvistettu = vahvistettu
+        self.kohde = kohde
+        self.luotu = luotu
 
+    # Esimerkkimetodeja
+    def is_confirmed(self):
+        return self.vahvistettu
 
-def muunna_varaustiedot(varaus: list) -> list:
-    muutettu_varaus = []
-    muutettu_varaus.append(int(varaus[0]))
-    muutettu_varaus.append(varaus[1])
-    muutettu_varaus.append(varaus[2])
-    muutettu_varaus.append(varaus[3])
-    muutettu_varaus.append(datetime.strptime(varaus[4], "%Y-%m-%d").date())
-    muutettu_varaus.append(datetime.strptime(varaus[5], "%H:%M").time())
-    muutettu_varaus.append(int(varaus[6]))
-    muutettu_varaus.append(float(varaus[7]))
-    muutettu_varaus.append(varaus[8].lower() == "true")
-    muutettu_varaus.append(varaus[9])
-    muutettu_varaus.append(datetime.strptime(varaus[10], "%Y-%m-%d %H:%M:%S"))
-    return muutettu_varaus
+    def is_long(self):
+        return self.kesto >= 3
 
+    def total_price(self):
+        return self.kesto * self.hinta
+
+def muunna_varaustiedot(varaus: list) -> Varaus:
+    """
+    Muuntaa varauslistan Varaus-olioksi.
+    """
+    return Varaus(
+        int(varaus[0]),
+        varaus[1],
+        varaus[2],
+        varaus[3],
+        datetime.strptime(varaus[4], "%Y-%m-%d").date(),
+        datetime.strptime(varaus[5], "%H:%M").time(),
+        int(varaus[6]),
+        float(varaus[7]),
+        varaus[8].lower() == "true",
+        varaus[9],
+        datetime.strptime(varaus[10], "%Y-%m-%d %H:%M:%S")
+    )
 def hae_varaukset(varaustiedosto: str) -> list:
     varaukset = []
-    varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
     with open(varaustiedosto, "r", encoding="utf-8") as f:
         for varaus in f:
             varaus = varaus.strip()
             varaustiedot = varaus.split('|')
             varaukset.append(muunna_varaustiedot(varaustiedot))
     return varaukset
-
+"""
 def vahvistetut_varaukset(varaukset: list):
     for varaus in varaukset[1:]:
         if(varaus[8]):
@@ -79,19 +104,29 @@ def varausten_kokonaistulot(varaukset: list):
 
     print("Vahvistettujen varausten kokonaistulot:", f"{varaustenTulot:.2f}".replace('.', ','), "€")
     print()
-
+    """
+    
 def main():
     varaukset = hae_varaukset("varaukset.txt")
+    
+    
+    
     print("1) Vahvistetut varaukset")
-    vahvistetut_varaukset(varaukset)
+    for varaus in varaukset:
+        if varaus.is_confirmed():
+            print(f"- {varaus.nimi}, {varaus.kohde}, {varaus.paiva.strftime('%d.%m.%Y')}")
+    
     print("2) Pitkät varaukset (≥ 3 h)")
-    pitkat_varaukset(varaukset)
-    print("3) Varausten vahvistusstatus")
-    varausten_vahvistusstatus(varaukset)
-    print("4) Yhteenveto vahvistuksista")
-    varausten_lkm(varaukset)
-    print("5) Vahvistettujen varausten kokonaistulot")
-    varausten_kokonaistulot(varaukset)
+    for varaus in varaukset:
+        if varaus.is_long():
+            print(f"- {varaus.nimi}, {varaus.paiva.strftime('%d.%m.%Y')} klo {varaus.kellonaika.strftime('%H.%M')}, kesto {varaus.kesto} h, {varaus.kohde}")
+    
+    #print("3) Varausten vahvistusstatus")
+    #varausten_vahvistusstatus(varaukset)
+    #print("4) Yhteenveto vahvistuksista")
+    #varausten_lkm(varaukset)
+    #print("5) Vahvistettujen varausten kokonaistulot")
+    #varausten_kokonaistulot(varaukset)
 
 if __name__ == "__main__":
     main()
