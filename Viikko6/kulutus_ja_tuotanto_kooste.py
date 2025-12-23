@@ -14,7 +14,8 @@
 # ja tulostaa yhteenvedon kaikista tiedostoista.
 # Vuosi 2025 on lukittu koodissa, päiväkohtainen aikavälilaskelma toimii pidemmälläkin aikajaksolla.
 #
-
+# Ohjelma hyväksyy myös Elenian csv-tiedoston ilman tuotantoa. Tuotantokentät korvataan nollilla.
+#
 
 from datetime import datetime, date, timedelta  
 from typing import Callable, Dict, List, Optional, Tuple
