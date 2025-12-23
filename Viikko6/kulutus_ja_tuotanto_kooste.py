@@ -232,8 +232,56 @@ def calculate_average_temperature_for_timerange(
 
 
 def act_monthly_summary() -> Optional[str]:
-    print("Näytetään kuukausiyhteenveto (toiminto ei ole vielä toteutettu).")
+    """
+    Raportti 2: Kuukausikohtainen yhteenveto
+    
+    Kysy käyttäjältä:
+
+    Kuukauden numero (1–12), esim. Anna kuukauden numero (1–12):
+    Raportissa tulostetaan:
+
+    Kuukausi
+    Kuukauden kokonaiskulutus (kWh)
+    Kuukauden kokonaistuotanto (kWh)
+    Kuukauden keskimääräinen vuorokauden lämpötila
+
+"""
+    month_nr = input("Anna kuukauden numero (1–12): ").strip()
+       
+    try:
+        month_nr = int(month_nr)
+        if month_nr <1 or month_nr >12:
+            print("Anna kuukausi numeroilla väliltä 1–12.")
+            return None
+        month_in_text = ["Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu",
+                         "Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"]
+        year = next(iter(state.rivit)).year if state.rivit else datetime.now().year
+        start_date, end_date = get_month_range(year, month_nr)
+      
+        print()
+        print("-" * 80)
+        print(f"Raportti kuukaudelta: {month_in_text[month_nr -1]}")
+        print("-" * 80)
+        print(f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
+        print(f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
+        print(f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
+        print("-" * 80)
+    except ValueError:
+        print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
+
     return None
+
+def get_month_range(year: int, month: int) -> tuple[date, date]:
+    """Returns the first and last date of the given month."""
+    start_date = date(year, month, 1)
+    # To get the last day, go to the first day of the next month and subtract one day
+    if month == 12:
+        end_date = date(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        end_date = date(year, month + 1, 1) - timedelta(days=1)
+    return start_date, end_date
+
+
 def act_yearly_summary() -> Optional[str]:
     print("Näytetään aikavälin päiväyhteenveto (toiminto ei ole vielä toteutettu).")
     return None
