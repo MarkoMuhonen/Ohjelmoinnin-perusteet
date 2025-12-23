@@ -46,6 +46,10 @@ def run_menu(
     current_menu = start_menu
 
     while True:
+        if current_menu == "__exit__":
+            #print_line("Ohjelma lopetettu.", print_fn)
+            return
+        
         if current_menu not in menus:
             print_line(f"Virhe: tuntematon valikko '{current_menu}'. Lopetetaan.", print_fn)
             return
@@ -85,12 +89,13 @@ def run_menu(
 
 # --- Esimerkkisovellus alla --- #
 
-# Tilaa ylläpitävä luokka (ei pakollinen, mutta siisti)
+# Tilaa ylläpitävä luokka 
 class AppState:
     def __init__(self) -> None:
         self.items: List[str] = []
         self.user: Optional[str] = None
         self.rivit: dict = {}
+        self.report: str = ""
 
 state = AppState()
 
@@ -161,14 +166,16 @@ def act_timerange_summary() -> Optional[str]:
         if start_date > end_date:
             print("Aloituspäivämäärä ei voi olla lopetuspäivämäärää myöhempi.")
             return None
-        print()
-        print("-" * 80)
-        print(f"Raportti aikaväliltä: {start_date.day}.{start_date.month}.{start_date.year} - {end_date.day}.{end_date.month}.{end_date.year}")
-        print("-" * 80)
-        print(f"Aikavälin kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Aikavälin kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Aikavälin keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
-        print("-" * 80)
+        report = "\n"
+        report += "-" * 80 + "\n"
+        report += f"Raportti aikaväliltä: {start_date.day}.{start_date.month}.{start_date.year} - {end_date.day}.{end_date.month}.{end_date.year}\n"
+        report += "-" * 80 + "\n"
+        report += f"Aikavälin kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Aikavälin kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Aikavälin keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C\n"
+        report += "-" * 80 + "\n"
+        state.report = report
+        print(report)
     except ValueError:
         print("Virheellinen päivämäärämuoto. Käytä muotoa pv.kk.vvvv.")
     return None
@@ -258,14 +265,16 @@ def act_monthly_summary() -> Optional[str]:
         year = next(iter(state.rivit)).year if state.rivit else datetime.now().year
         start_date, end_date = get_month_range(year, month_nr)
       
-        print()
-        print("-" * 80)
-        print(f"Raportti : {month_in_text[month_nr -1] } {year}")
-        print("-" * 80)
-        print(f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
-        print("-" * 80)
+        report = "\n"
+        report += "-" * 80 + "\n"
+        report += f"Raportti : {month_in_text[month_nr -1] } {year}\n"
+        report += "-" * 80 + "\n"
+        report += f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C\n"
+        report += "-" * 80 + "\n"
+        state.report = report
+        print(report)
     except ValueError:
         print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
 
@@ -288,14 +297,16 @@ def act_yearly_summary() -> Optional[str]:
         year = next(iter(state.rivit)).year if state.rivit else datetime.now().year
         start_date, end_date = get_year_range(year)
       
-        print()
-        print("-" * 80)
-        print(f"Raportti vuodelta {year}")
-        print("-" * 80)
-        print(f"Koko vuoden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Koko vuoden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh")
-        print(f"Koko vuoden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C")
-        print("-" * 80)
+        report = "\n"
+        report += "-" * 80 + "\n"
+        report += f"Raportti vuodelta {year}\n"
+        report += "-" * 80 + "\n"
+        report += f"Koko vuoden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Koko vuoden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " kWh\n"
+        report += f"Koko vuoden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f}".replace('.', ',') + " °C\n"
+        report += "-" * 80 + "\n"
+        state.report = report
+        print(report)
     except ValueError:
         print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
 
@@ -318,9 +329,13 @@ def get_year_range(year: int) -> tuple[date, date]:
     return start_date, end_date
 
 
-def act_write_raport_to_file() -> Optional[str]:
-    print("Kirjoitetaan raportti (toiminto ei ole vielä toteutettu).")
+def act_write_report_to_file(report: str) -> Optional[str]:
+    # Tulostetaan raportti tiedostoon raportti.txt
+    with open("raportti.txt", "w", encoding="utf-8") as f:
+        f.write(report)
+    print("\nRaportti kirjoitettu tiedostoon raportti.txt")
     return None
+    
 
 def act_go_print_to_file() -> str:
     # Siirtyminen toiseen valikkoon palauttamalla sen nimi
@@ -334,7 +349,6 @@ def act_go_main() -> str:
 
 def act_quit() -> str:
     print("Lopetetaan. Kiitos!")
-    # Palautetaan tuntematon valikkonimi, jolloin run_menu lopettaa siististi
     return "__exit__"
 
 
@@ -344,11 +358,11 @@ menus: Menus = {
         "1": ("Päiväkohtainen yhteenveto aikaväliltä", act_timerange_summary),
         "2": ("Kuukausikohtainen yhteenveto yhdelle kuukaudelle", act_monthly_summary),
         "3": ("Vuoden 2025 kokonaisyhteenveto", act_yearly_summary),
-        "w": ("Tulosta tiedostoon", act_go_filemenu),
+        "w": ("Tulosta tiedostoon -valikko", act_go_filemenu),
         "q": ("Lopeta", act_quit),
     },
     "tulosta_tiedostoon": {
-        "1": ("Kirjoita raportti tiedostoon raportti.txt", act_write_raport_to_file),
+        "1": ("Kirjoita raportti tiedostoon raportti.txt", lambda: act_write_report_to_file(state.report)),
         "m": ("Takaisin päävalikkoon", act_go_main),
         "q": ("Lopeta", act_quit),
         }
@@ -357,12 +371,12 @@ menus: Menus = {
 def main():    
     
     if len(sys.argv) < 2:
-        print("Anna vähintään yksi tiedostonimi komentorivillä!")
+        print("Anna parametrinä vähintään yksi Elenian .csv raporttitiedosto komentorivillä!")
         return
 
  
-    for tiedosto in sys.argv[1:]:
-        rivit = lue_data(tiedosto)
+    for file in sys.argv[1:]:
+        rivit = lue_data(file)
         state.rivit.update(rivit)
            
     run_menu(
