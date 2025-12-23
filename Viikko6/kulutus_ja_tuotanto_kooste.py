@@ -243,7 +243,7 @@ def act_monthly_summary() -> Optional[str]:
     Kuukausi
     Kuukauden kokonaiskulutus (kWh)
     Kuukauden kokonaistuotanto (kWh)
-    Kuukauden keskimääräinen vuorokauden lämpötila
+    Kuukauden keskimääräinen lämpötila
 
 """
     month_nr = input("Anna kuukauden numero (1–12): ").strip()
@@ -260,11 +260,41 @@ def act_monthly_summary() -> Optional[str]:
       
         print()
         print("-" * 80)
-        print(f"Raportti kuukaudelta: {month_in_text[month_nr -1]}")
+        print(f"Raportti : {month_in_text[month_nr -1] } {year}")
         print("-" * 80)
         print(f"Kuukauden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
         print(f"Kuukauden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
         print(f"Kuukauden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
+        print("-" * 80)
+    except ValueError:
+        print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
+
+    return None
+
+def act_yearly_summary() -> Optional[str]:
+    """
+    Raportti 3: Vuosikohtainen yhteenveto
+    
+    Raportissa tulostetaan:
+
+    Vuosi xxxx (vuosi csv datasta, voi käyttää muunkin vuoden csv dataa parametrinä)
+    Koko vuoden kokonaiskulutus (kWh)
+    Koko vuoden kokonaistuotanto (kWh)
+    Koko vuoden keskimääräinen lämpötila
+
+"""
+           
+    try:
+        year = next(iter(state.rivit)).year if state.rivit else datetime.now().year
+        start_date, end_date = get_year_range(year)
+      
+        print()
+        print("-" * 80)
+        print(f"Raportti vuodelta {year}")
+        print("-" * 80)
+        print(f"Koko vuoden kokonaiskulutus:  {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
+        print(f"Koko vuoden kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):>8.2f} kWh")
+        print(f"Koko vuoden keskilämpötila:   {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):>8.2f} °C")
         print("-" * 80)
     except ValueError:
         print("Virheellinen kuukauden numero. Anna kuukausi numeroilla väliltä 1–12.")
@@ -281,10 +311,12 @@ def get_month_range(year: int, month: int) -> tuple[date, date]:
         end_date = date(year, month + 1, 1) - timedelta(days=1)
     return start_date, end_date
 
+def get_year_range(year: int) -> tuple[date, date]:
+    """Palauttaa vuoden ensimmäisen ja viimeisen päivän."""
+    start_date = date(year, 1, 1)
+    end_date = date(year, 12, 31)
+    return start_date, end_date
 
-def act_yearly_summary() -> Optional[str]:
-    print("Näytetään aikavälin päiväyhteenveto (toiminto ei ole vielä toteutettu).")
-    return None
 
 def act_write_raport_to_file() -> Optional[str]:
     print("Kirjoitetaan raportti (toiminto ei ole vielä toteutettu).")
