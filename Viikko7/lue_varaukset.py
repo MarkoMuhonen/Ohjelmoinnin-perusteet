@@ -172,6 +172,7 @@ def main():
     """
     varaukset = hae_varaukset("varaukset.txt")
     
+    print()
     print("1) Vahvistetut varaukset")
     vahvistetut_varaukset(varaukset)
     
