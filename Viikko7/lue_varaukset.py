@@ -157,7 +157,6 @@ def varausten_kokonaistulot(varaukset: list[Varaus]):
     Tulostaa vahvistettujen varausten kokonaistulot.
     :param varaukset: Lista Varaus-olioita
     """
-    print("5) Vahvistettujen varausten kokonaistulot")
     varaustenTulot = 0
     for varaus in varaukset:
         if varaus.is_confirmed():
