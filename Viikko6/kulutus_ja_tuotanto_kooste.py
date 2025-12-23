@@ -6,6 +6,8 @@
 #
 # See LICENSE file in the project root for full license information.
 
+
+
 from datetime import datetime, date, timedelta  
 import sys
 from typing import Callable, Dict, List, Optional, Tuple
@@ -88,6 +90,7 @@ class AppState:
     def __init__(self) -> None:
         self.items: List[str] = []
         self.user: Optional[str] = None
+        self.rivit: dict = {}
 
 state = AppState()
 
@@ -95,30 +98,30 @@ def header(title: str) -> str:
     # Esimerkki otsikon muotoilusta
     return f"\n--- {title.capitalize()} ---"
 
-def muunna_rivitiedot(rivit: list) -> list:
+def muunna_rivitiedot(rivit: list) -> dict:
     """
     Muuntaa yhden tiedostorivin tiedot oikeisiin tietotyyppeihin (datetime, float).
 
     :param rivit: lista merkkijonoja (yksi tiedostorivi pilkottuna)
     :return: lista, jossa tiedot oikeissa tietotyypeissä
     """
-    return [
-        datetime.fromisoformat(rivit[0]),
-        float(rivit[1].replace(',', '.')),
-        float(rivit[2].replace(',', '.')),
-        float(rivit[3].replace(',', '.'))
-    ]
+    return {
+        'dateiso': datetime.fromisoformat(rivit[0]),
+        'consumption': float(rivit[1].replace(',', '.')),
+        'production': float(rivit[2].replace(',', '.')),
+        'temperature': float(rivit[3].replace(',', '.'))
+        }
 
 
 
-def lue_data(datatiedosto: str) -> list:
+def lue_data(datatiedosto: str) -> dict:
     """
-    Lukee annetun CSV-tiedoston ja palauttaa rivit listana, jossa jokainen rivi on muunnettu oikeisiin tietotyyppeihin.
+    Lukee annetun CSV-tiedoston ja palauttaa rivit sanakirjana, jossa jokainen rivi on muunnettu oikeisiin tietotyyppeihin.
 
     :param datatiedosto: tiedostonimi (str)
-    :return: lista riveistä, joissa jokainen rivi on lista oikeissa tietotyypeissä
+    :return: lista riveistä, joissa jokainen rivi on sanakirjan tietue oikeissa tietotyypeissä
     """
-    rivit = []
+    rivit = {}
     with open(datatiedosto, "r", encoding="utf-8") as f:
         otsikkorivi = f.readline() # Ohitetaan otsikkorivi
         for rivi in f:
@@ -126,8 +129,13 @@ def lue_data(datatiedosto: str) -> list:
             rivitiedot = rivi.split(';')
             # debugging
             #print(rivitiedot)   
-            rivit.append(muunna_rivitiedot(rivitiedot))
-    return list(rivit)        
+            data = muunna_rivitiedot(rivitiedot)
+            rivit[data['dateiso']] = { 
+                'consumption': data['consumption'],
+                'production': data['production'],
+                'temperature': data['temperature']
+            }
+    return rivit        
 
 
 # Toiminnot (actions). Jokainen voi palauttaa seuraavan valikon nimen tai None.
@@ -157,36 +165,70 @@ def act_timerange_summary() -> Optional[str]:
         print("-" * 80)
         print(f"Raportti aikaväliltä: {start_date.day}.{start_date.month}.{start_date.year} - {end_date.day}.{end_date.month}.{end_date.year}")
         print("-" * 80)
-        print(f"Aikavälin kokonaiskulutus: {calculate_total_for_timerange(start_date, end_date, rivit, 'consumption'):.2f} kWh")
-        print(f"Aikavälin kokonaistuotanto: {calculate_total_for_timerange(start_date, end_date, rivit, 'production'):.2f} kWh")
-        print("Aikavälin keskilämpötila: ... °C")
+        print(f"Aikavälin kokonaiskulutus: {calculate_total_consumption_for_timerange(start_date, end_date, state.rivit):.2f} kWh")
+        print(f"Aikavälin kokonaistuotanto: {calculate_total_production_for_timerange(start_date, end_date, state.rivit):.2f} kWh")
+        print(f"Aikavälin keskilämpötila: {calculate_average_temperature_for_timerange(start_date, end_date, state.rivit):.2f} °C")
+        print("-" * 80)
     except ValueError:
         print("Virheellinen päivämäärämuoto. Käytä muotoa pv.kk.vvvv.")
     return None
 
-def calculate_total_for_timerange(
+def calculate_total_consumption_for_timerange(
         start_date: date,
         end_date: date,
-        rivit: list,
-        target: str) -> float:
+        rivit: dict
+    ) -> float:
+    
     """
-    Laske ja palauta aikavälin kokonaiskulutus tai konaistuotanto 
-    (target = 'consumption' tai 'production')  
-
+    Laske ja palauta aikavälin kokonaiskulutus 
+   
     """
-    match target:
-        case 'consumption':
-            cell = 1  # kulutus on sarakkeessa 1
-        case 'production':
-            cell = 2
-        case _:
-            raise ValueError("Tuntematon target-arvo.")
+   
     total = 0.0
-    for rivi in rivi:
-        if start_date <=rivi[0].date() <= end_date: 
-            total += rivi[cell]
-
+    for aikaleima, data in rivit.items():
+        if start_date <=aikaleima.date() <= end_date: 
+            total += data['consumption']
     return float(total) 
+
+def calculate_total_production_for_timerange(
+        start_date: date,
+        end_date: date,
+        rivit: dict
+    ) -> float:
+    
+    """
+    Laske ja palauta aikavälin kokonaistuotanto 
+   
+    """
+    total = 0.0
+    for aikaleima, data in rivit.items():
+        if start_date <=aikaleima.date() <= end_date: 
+            total += data['production']
+    return float(total) 
+
+
+def calculate_average_temperature_for_timerange(
+        start_date: date,
+        end_date: date,
+        rivit: dict
+    ) -> float:
+    
+    """
+    Laske ja palauta aikavälin keskilämpötila 
+
+    Lasketaan mittauskerrat ja jaetaan summa mittauskertojen määrällä.
+   
+    """
+   
+    total = 0.0
+    measurements_count = 0
+    for aikaleima, data in rivit.items():
+        if start_date <=aikaleima.date() <= end_date: 
+            total += data['temperature']
+            measurements_count += 1
+
+    average = total / measurements_count if measurements_count > 0 else 0.0
+    return float(average)
 
 
 def act_monthly_summary() -> Optional[str]:
@@ -212,11 +254,11 @@ def act_go_main() -> str:
 
 def act_quit() -> str:
     print("Lopetetaan. Kiitos!")
-    # Palautetaan tuntematon valikkonimi, jolloin run_menu lopettaa siististi, tai sitten ei
+    # Palautetaan tuntematon valikkonimi, jolloin run_menu lopettaa siististi
     return "__exit__"
 
 
-# Valikkorakenne: yksi aliohjelma run_menu käsittelee kaikki
+# Valikkorakenne sanakirjalla: yksi aliohjelma run_menu käsittelee kaikki
 menus: Menus = {
     "päävalikko": {
         "1": ("Päiväkohtainen yhteenveto aikaväliltä", act_timerange_summary),
@@ -238,12 +280,11 @@ def main():
         print("Anna vähintään yksi tiedostonimi komentorivillä!")
         return
 
-    #kaikki_rivit = []
+ 
     for tiedosto in sys.argv[1:]:
         rivit = lue_data(tiedosto)
-        #kaikki_rivit.extend(rivit)
-         
-
+        state.rivit.update(rivit)
+           
     run_menu(
         start_menu="päävalikko",
         menus=menus,
