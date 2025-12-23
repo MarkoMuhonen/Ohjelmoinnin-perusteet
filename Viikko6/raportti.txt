@@ -1,8 +1,8 @@
 
 --------------------------------------------------------------------------------
-Raportti : Helmikuu 2025
+Raportti aikaväliltä: 1.1.2025 - 18.8.2026
 --------------------------------------------------------------------------------
-Kuukauden kokonaiskulutus:   1364,95 kWh
-Kuukauden kokonaistuotanto:     7,11 kWh
-Kuukauden keskilämpötila:      -3,05 °C
+Aikavälin kokonaiskulutus:  12445,60 kWh
+Aikavälin kokonaistuotanto:  5333,54 kWh
+Aikavälin keskilämpötila:       7,75 °C
 --------------------------------------------------------------------------------
