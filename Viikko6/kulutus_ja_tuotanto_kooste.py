@@ -152,9 +152,16 @@ def lue_data(datatiedosto: str) -> dict:
     rivit = {}
     with open(datatiedosto, "r", encoding="utf-8") as f:
         otsikkorivi = f.readline() # Ohitetaan otsikkorivi
+        ohitus = False
         for rivi in f:
             rivi = rivi.strip()
             rivitiedot = rivi.split(';')
+            if len(rivitiedot) < 4 and ohitus == False:
+                print(f"Datassa liian vähän kenttiä, tuotanto puuttuu? korvataan tuotantoluvut nollilla.")
+                ohitus = True
+            if len(rivitiedot) == 3:
+                rivitiedot.insert(2, "0.0")
+            
             data = muunna_rivitiedot(rivitiedot)
             rivit[data['dateiso']] = { 
                 'consumption': data['consumption'],
